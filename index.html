@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
@@ -649,13 +649,17 @@
                 savedTasks = JSON.parse(storedTasks);
             }
 
-            if (lastDate !== today) {
-                // إنه يوم جديد، قم بتحديث تاريخ آخر زيارة
-                localStorage.setItem('lastDate', today);
+            let currentTasks = [];
+            const savedDefaultTasksMap = new Map();
+            const savedCustomTasks = [];
 
-                let newTasks = [];
-                // أضف المهام الافتراضية، مع الحفاظ على حالة إنجازها إذا كانت مكتملة من قبل
-                defaultTasks.forEach(defaultText => {
-                    const existingTask = savedTasks.find(t => t.text === defaultText && t.isDefault);
-                    if (existingTask) {
-                        newTasks.push
+            // فصل المهام المحفوظة إلى افتراضية ومخصصة لتسهيل المعالجة
+            savedTasks.forEach(task => {
+                if (task.isDefault) {
+                    savedDefaultTasksMap.set(task.text, task);
+                } else {
+                    savedCustomTasks.push(task);
+                }
+            });
+
+            // معالجة المهام الافتراضية: إما تحميل الحالة المحفوظ
