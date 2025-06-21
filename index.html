@@ -1,824 +1,557 @@
-
-  <!DOCTYPE html>
-  <html dir="rtl" lang="ar">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>خطة مذاكرة دورة إدارة المخاطر الاحترافية RMP</title>
-      <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-      <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-      
-      <style>
-          :root {
-              --primary-color: #1e3a8a;
-              --secondary-color: #3b82f6;
-              --accent-color: #06b6d4;
-              --success-color: #10b981;
-              --danger-color: #ef4444;
-              --warning-color: #f59e0b;
-              --info-color: #8b5cf6;
-              --dark-blue: #0f172a;
-              --light-blue: #e0f2fe;
-              --background-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
-              --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-              --glass-bg: rgba(255, 255, 255, 0.95);
-              --glass-border: rgba(255, 255, 255, 0.2);
-          }
-
-          * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-              font-family: 'Cairo', sans-serif;
-          }
-
-          body {
-              background: var(--background-gradient);
-              min-height: 100vh;
-              padding: 2rem;
-              position: relative;
-              overflow-x: hidden;
-          }
-
-          body::before {
-              content: '';
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background: 
-                  radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-                  radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
-              pointer-events: none;
-              z-index: -1;
-          }
-
-          .main-container {
-              max-width: 1000px;
-              margin: 0 auto;
-              position: relative;
-              z-index: 1;
-          }
-
-          .header {
-              text-align: center;
-              margin-bottom: 3rem;
-              padding: 3rem 2rem;
-              background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
-              border-radius: 25px;
-              color: white;
-              box-shadow: var(--card-shadow);
-              position: relative;
-              overflow: hidden;
-          }
-
-          .header::before {
-              content: '';
-              position: absolute;
-              top: -50%;
-              left: -50%;
-              width: 200%;
-              height: 200%;
-              background: 
-                  repeating-linear-gradient(
-                      45deg,
-                      transparent,
-                      transparent 2px,
-                      rgba(255, 255, 255, 0.03) 2px,
-                      rgba(255, 255, 255, 0.03) 4px
-                  );
-              animation: shimmer 20s linear infinite;
-              pointer-events: none;
-          }
-
-          @keyframes shimmer {
-              0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-              100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-          }
-
-          .header h1 {
-              font-size: 2.8rem;
-              margin-bottom: 1.5rem;
-              font-weight: 800;
-              text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-              position: relative;
-              z-index: 2;
-              background: linear-gradient(45deg, #ffffff, #e0f2fe, #ffffff);
-              background-size: 200% 200%;
-              -webkit-background-clip: text;
-              -webkit-text-fill-color: transparent;
-              background-clip: text;
-              animation: gradient-text 3s ease-in-out infinite;
-          }
-
-          @keyframes gradient-text {
-              0%, 100% { background-position: 0% 50%; }
-              50% { background-position: 100% 50%; }
-          }
-
-          .rmp-badge {
-              display: inline-block;
-              background: linear-gradient(45deg, var(--warning-color), #fbbf24);
-              color: var(--dark-blue);
-              padding: 0.5rem 1.5rem;
-              border-radius: 50px;
-              font-weight: 700;
-              font-size: 1.1rem;
-              margin-top: 1rem;
-              box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-              position: relative;
-              z-index: 2;
-          }
-
-          .date-display {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              justify-content: center;
-              gap: 0.5rem;
-              margin-top: 2rem;
-              background: var(--glass-bg);
-              backdrop-filter: blur(10px);
-              padding: 1rem 2rem;
-              border-radius: 20px;
-              border: 1px solid var(--glass-border);
-              width: fit-content;
-              margin: 2rem auto 0;
-              position: relative;
-              z-index: 2;
-          }
-
-          .day-name {
-              font-size: 1.6rem;
-              font-weight: 700;
-              color: var(--primary-color);
-          }
-
-          .date-value {
-              font-size: 1.1rem;
-              color: var(--secondary-color);
-              font-weight: 500;
-          }
-
-          .container {
-              background: var(--glass-bg);
-              backdrop-filter: blur(15px);
-              padding: 2.5rem;
-              border-radius: 25px;
-              box-shadow: var(--card-shadow);
-              margin-bottom: 2rem;
-              border: 1px solid var(--glass-border);
-              position: relative;
-          }
-
-          .container::before {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              height: 4px;
-              background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
-              border-radius: 25px 25px 0 0;
-          }
-
-          .input-container {
-              display: flex;
-              gap: 1rem;
-              margin-bottom: 2rem;
-          }
-
-          input[type="text"] {
-              flex: 1;
-              padding: 1.2rem 1.8rem;
-              border: 2px solid rgba(59, 130, 246, 0.2);
-              border-radius: 15px;
-              font-size: 1.1rem;
-              transition: all 0.3s ease;
-              background: rgba(255, 255, 255, 0.8);
-              backdrop-filter: blur(5px);
-              font-weight: 500;
-          }
-
-          input[type="text"]:focus {
-              outline: none;
-              border-color: var(--secondary-color);
-              box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-              background: rgba(255, 255, 255, 0.95);
-          }
-
-          input[type="text"]::placeholder {
-              color: #64748b;
-              font-weight: 400;
-          }
-
-          button {
-              background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-              color: white;
-              border: none;
-              padding: 1.2rem 2.5rem;
-              border-radius: 15px;
-              cursor: pointer;
-              transition: all 0.3s ease;
-              font-weight: 600;
-              font-size: 1.1rem;
-              box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
-              position: relative;
-              overflow: hidden;
-          }
-
-          button::before {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: -100%;
-              width: 100%;
-              height: 100%;
-              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-              transition: left 0.5s;
-          }
-
-          button:hover::before {
-              left: 100%;
-          }
-
-          button:hover {
-              transform: translateY(-3px);
-              box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-          }
-
-          .task-list {
-              list-style: none;
-          }
-
-          .task-item {
-              display: flex;
-              align-items: center;
-              padding: 1.5rem;
-              border-radius: 15px;
-              margin-bottom: 1rem;
-              transition: all 0.3s ease;
-              background: rgba(255, 255, 255, 0.7);
-              backdrop-filter: blur(10px);
-              border: 1px solid rgba(59, 130, 246, 0.1);
-              position: relative;
-              overflow: hidden;
-          }
-
-          .task-item::before {
-              content: '';
-              position: absolute;
-              left: 0;
-              top: 0;
-              bottom: 0;
-              width: 4px;
-              background: linear-gradient(180deg, var(--primary-color), var(--accent-color));
-              transform: scaleY(0);
-              transition: transform 0.3s ease;
-          }
-
-          .task-item:hover::before {
-              transform: scaleY(1);
-          }
-
-          .task-item:hover {
-              background: rgba(255, 255, 255, 0.9);
-              transform: translateX(8px);
-              box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-          }
-
-          .task-checkbox {
-              appearance: none;
-              width: 28px;
-              height: 28px;
-              border: 3px solid var(--secondary-color);
-              border-radius: 8px;
-              margin-left: 1rem;
-              cursor: pointer;
-              position: relative;
-              transition: all 0.3s ease;
-              background: rgba(255, 255, 255, 0.8);
-          }
-
-          .task-checkbox:checked {
-              background: linear-gradient(135deg, var(--success-color), #059669);
-              border-color: var(--success-color);
-              transform: scale(1.1);
-          }
-
-          .task-checkbox:checked::after {
-              content: '✓';
-              position: absolute;
-              color: white;
-              font-size: 18px;
-              font-weight: bold;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-          }
-
-          .task-text {
-              flex: 1;
-              font-size: 1.1rem;
-              color: var(--dark-blue);
-              font-weight: 500;
-              line-height: 1.5;
-          }
-
-          .task-item.completed .task-text {
-              text-decoration: line-through;
-              color: #64748b;
-              opacity: 0.7;
-          }
-
-          .stats-wrapper {
-              background: var(--glass-bg);
-              backdrop-filter: blur(15px);
-              border-radius: 25px;
-              padding: 2.5rem;
-              box-shadow: var(--card-shadow);
-              margin-top: 2rem;
-              border: 1px solid var(--glass-border);
-              position: relative;
-          }
-
-          .stats-wrapper::before {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              height: 4px;
-              background: linear-gradient(90deg, var(--success-color), var(--accent-color), var(--info-color));
-              border-radius: 25px 25px 0 0;
-          }
-
-          .stats-title {
-              text-align: center;
-              font-size: 1.8rem;
-              font-weight: 700;
-              color: var(--primary-color);
-              margin-bottom: 2rem;
-          }
-
-          .stats-container {
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-              gap: 1.5rem;
-          }
-
-          .stat-item {
-              background: rgba(255, 255, 255, 0.8);
-              backdrop-filter: blur(10px);
-              padding: 2rem;
-              border-radius: 20px;
-              text-align: center;
-              border: 1px solid rgba(255, 255, 255, 0.3);
-              transition: all 0.3s ease;
-              position: relative;
-              overflow: hidden;
-          }
-
-          .stat-item::before {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              height: 3px;
-              background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-              transform: scaleX(0);
-              transition: transform 0.3s ease;
-          }
-
-          .stat-item:hover::before {
-              transform: scaleX(1);
-          }
-
-          .stat-item:hover {
-              transform: translateY(-5px);
-              box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-          }
-
-          .stat-number {
-              font-size: 2.5rem;
-              font-weight: 800;
-              margin-bottom: 0.5rem;
-              background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-              -webkit-background-clip: text;
-              -webkit-text-fill-color: transparent;
-              background-clip: text;
-          }
-
-          .stat-number.completed {
-              background: linear-gradient(135deg, var(--success-color), #059669);
-              -webkit-background-clip: text;
-              -webkit-text-fill-color: transparent;
-              background-clip: text;
-          }
-
-          .stat-number.incomplete {
-              background: linear-gradient(135deg, var(--danger-color), #dc2626);
-              -webkit-background-clip: text;
-              -webkit-text-fill-color: transparent;
-              background-clip: text;
-          }
-
-          .completion-rate {
-              font-size: 2.5rem;
-              font-weight: 800;
-              margin-bottom: 0.5rem;
-              transition: all 0.3s ease;
-          }
-
-          .stat-label {
-              color: var(--dark-blue);
-              font-size: 1.1rem;
-              font-weight: 600;
-              opacity: 0.8;
-          }
-
-          .save-btn {
-              background: linear-gradient(135deg, var(--success-color), #059669);
-              margin-top: 2rem;
-              width: 100%;
-              font-size: 1.2rem;
-              padding: 1.5rem;
-          }
-
-          .export-btn {
-              background: linear-gradient(135deg, var(--warning-color), #f59e0b);
-              margin-top: 1rem;
-              width: 100%;
-              font-size: 1.2rem;
-              padding: 1.5rem;
-          }
-
-          .custom-toast {
-              font-family: 'Cairo', sans-serif !important;
-              direction: rtl !important;
-              font-weight: 600 !important;
-          }
-
-          .toast-success {
-              background: linear-gradient(135deg, #10b981, #059669) !important;
-              border-radius: 15px !important;
-              box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important;
-          }
-
-          @media (max-width: 768px) {
-              body {
-                  padding: 1rem;
-              }
-
-              .header {
-                  padding: 2rem 1.5rem;
-              }
-
-              .header h1 {
-                  font-size: 2.2rem;
-              }
-
-              .input-container {
-                  flex-direction: column;
-              }
-
-              button {
-                  width: 100%;
-              }
-
-              .stats-container {
-                  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-              }
-
-              .container {
-                  padding: 1.5rem;
-              }
-          }
-
-          @media (max-width: 480px) {
-              .header h1 {
-                  font-size: 1.8rem;
-              }
-              
-              .stat-number {
-                  font-size: 2rem;
-              }
-              
-              .completion-rate {
-                  font-size: 2rem;
-              }
-          }
-      </style>
-  </head>
-  <body>
-      <div class="main-container">
-          <header class="header">
-              <h1>خطة مذاكرة دورة إدارة المخاطر الاحترافية</h1>
-              <div class="rmp-badge">RMP Certification</div>
-              <div class="date-display">
-                  <span class="day-name" id="dayName"></span>
-                  <span class="date-value" id="gregorianDate"></span>
-              </div>
-          </header>
-
-          <div class="container">
-              <div class="input-container">
-                  <input type="text" id="newTask" placeholder="أضف مهمة جديدة للخطة...">
-                  <button onclick="addTask()">إضافة مهمة</button>
-              </div>
-              <ul class="task-list" id="taskList"></ul>
-              <button class="save-btn" onclick="saveChanges()" id="saveButton">💾 حفظ التقدم</button>
-          </div>
-
-          <div class="stats-wrapper">
-              <h2 class="stats-title">📊 تقرير التقدم اليومي</h2>
-              <div class="stats-container">
-                  <div class="stat-item">
-                      <div class="stat-number" id="totalTasks">0</div>
-                      <div class="stat-label">📋 إجمالي المهام</div>
-                  </div>
-                  <div class="stat-item">
-                      <div class="stat-number completed" id="completedTasks">0</div>
-                      <div class="stat-label">✅ المهام المكتملة</div>
-                  </div>
-                  <div class="stat-item">
-                      <div class="stat-number incomplete" id="incompleteTasks">0</div>
-                      <div class="stat-label">⏳ المهام المتبقية</div>
-                  </div>
-                  <div class="stat-item">
-                      <div class="completion-rate" id="completionRate">0%</div>
-                      <div class="stat-label">🎯 نسبة الإنجاز</div>
-                  </div>
-              </div>
-          </div>
-
-          <button class="export-btn" onclick="exportToExcel()">📊 تصدير تقرير Excel</button>
-      </div>
-
-      <script>
-          const defaultTasks = [
-              "Watch Course Agenda & Exam requirements & Study Plan Videos",
-              "Watch Videos for Ch 01+ 2+ 3",
-              "Practice test",
-              "Watch Videos for Domain 01",
-              "Practice test",
-              "Watch Videos for Domain 02",
-              "Practice test",
-              "Watch Videos for Domain 03",
-              "Practice test",
-              "Watch Videos for Domain 04",
-              "Practice test",
-              "Watch Videos for Domain 05",
-              "Practice test",
-              "Watch Videos for Tips & tricks",
-              "Practice test 01",
-              "Practice test 02",
-              "Practice test 03",
-              "Practice test 04",
-              "Practice test 05",
-              "Practice test 06",
-              "Kill Mistakes Exam"
-          ];
-
-          let tasks = [];
-          let taskHistory = {};
-          const today = new Date().toISOString().split('T')[0];
-
-          function showNotification(message, type = 'success') {
-              Toastify({
-                  text: message,
-                  duration: 3000,
-                  gravity: "top",
-                  position: "center",
-                  className: `custom-toast toast-${type}`,
-                  style: {
-                      background: type === 'success' 
-                          ? "linear-gradient(135deg, #10b981, #059669)"
-                          : "linear-gradient(135deg, #ef4444, #dc2626)",
-                      fontSize: "16px",
-                      padding: "18px 30px",
-                      borderRadius: "15px",
-                      boxShadow: type === 'success'
-                          ? "0 8px 25px rgba(16, 185, 129, 0.3)"
-                          : "0 8px 25px rgba(239, 68, 68, 0.3)",
-                  },
-                  onClick: function(){}
-              }).showToast();
-          }
-
-          function updateDate() {
-              const now = new Date();
-              const dayName = now.toLocaleDateString('ar-SA', { weekday: 'long' });
-              const hijriDate = now.toLocaleDateString('ar-SA', {
-                  year: 'numeric',
-                  month: 'numeric',
-                  day: 'numeric',
-                  calendar: 'islamic-umalqura'
-              });
-              const gregorianDate = now.toLocaleDateString('ar-SA', {
-                  year: 'numeric',
-                  month: 'numeric',
-                  day: 'numeric',
-                  calendar: 'gregory'
-              });
-              
-              document.getElementById('dayName').textContent = dayName;
-              document.getElementById('gregorianDate').textContent = `${hijriDate} | ${gregorianDate}`;
-          }
-
-          function loadTasks() {
-              const lastDate = localStorage.getItem('lastDate');
-              const savedHistory = localStorage.getItem('taskHistory');
-              if (savedHistory) {
-                  taskHistory = JSON.parse(savedHistory);
-              }
-              
-              if (lastDate !== today) {
-                  tasks = defaultTasks.map(text => ({
-                      text,
-                      completed: false,
-                      isDefault: true,
-                      completionDate: null,
-                      completionTime: null,
-                      dayName: new Date().toLocaleDateString('ar-SA', { weekday: 'long' })
-                  }));
-                  localStorage.setItem('lastDate', today);
-                  saveTasks();
-              } else {
-                  const savedTasks = localStorage.getItem('tasks');
-                  if (savedTasks) {
-                      tasks = JSON.parse(savedTasks);
-                  }
-              }
-              renderTasks();
-          }
-
-          function saveTasks() {
-              localStorage.setItem('tasks', JSON.stringify(tasks));
-              updateStats();
-          }
-
-          function addTask() {
-              const input = document.getElementById('newTask');
-              const text = input.value.trim();
-              if (text) {
-                  tasks.push({
-                      text,
-                      completed: false,
-                      isDefault: false,
-                      completionDate: null,
-                      completionTime: null,
-                      dayName: new Date().toLocaleDateString('ar-SA', { weekday: 'long' })
-                  });
-                  input.value = '';
-                  renderTasks();
-                  saveTasks();
-                  showNotification('✅ تمت إضافة المهمة بنجاح!');
-              }
-          }
-
-          function toggleTask(index) {
-              tasks[index].completed = !tasks[index].completed;
-              renderTasks();
-              saveTasks();
-          }
-
-          function saveChanges() {
-              const now = new Date();
-              const currentDate = now.toLocaleDateString('ar-SA', {
-                  year: 'numeric',
-                  month: 'numeric',
-                  day: 'numeric',
-                  calendar: 'gregory'
-              });
-              
-              const currentTime = now.toLocaleTimeString('ar-SA');
-              
-              const hijriDate = now.toLocaleDateString('ar-SA', {
-                  year: 'numeric',
-                  month: 'numeric',
-                  day: 'numeric',
-                  calendar: 'islamic-umalqura'
-              });
-
-              const dayName = now.toLocaleDateString('ar-SA', { weekday: 'long' });
-
-              tasks.forEach(task => {
-                  if (task.completed) {
-                      task.completionDate = currentDate;
-                      task.completionTime = currentTime;
-                      task.hijriDate = hijriDate;
-                      task.dayName = dayName;
-                  }
-              });
-
-              taskHistory[currentDate] = {
-                  tasks: JSON.parse(JSON.stringify(tasks)),
-                  hijriDate: hijriDate,
-                  dayName: dayName
-              };
-
-              localStorage.setItem('taskHistory', JSON.stringify(taskHistory));
-              localStorage.setItem('tasks', JSON.stringify(tasks));
-              
-              updateStats();
-              showNotification('💾 تم حفظ التقدم بنجاح!');
-          }
-
-          function renderTasks() {
-              const list = document.getElementById('taskList');
-              list.innerHTML = '';
-              tasks.forEach((task, index) => {
-                  const li = document.createElement('li');
-                  li.className = `task-item ${task.completed ? 'completed' : ''}`;
-                  li.innerHTML = `
-                      <input type="checkbox" class="task-checkbox" 
-                          ${task.completed ? 'checked' : ''} 
-                          onchange="toggleTask(${index})">
-                      <span class="task-text">${task.text}</span>
-                  `;
-                  list.appendChild(li);
-              });
-              updateStats();
-          }
-
-          function updateStats() {
-              const total = tasks.length;
-              const completed = tasks.filter(t => t.completed).length;
-              const incomplete = total - completed;
-              const rate = Math.round((completed / total) * 100) || 0;
-
-              document.getElementById('totalTasks').textContent = total;
-              document.getElementById('completedTasks').textContent = completed;
-              document.getElementById('incompleteTasks').textContent = incomplete;
-              
-              const completionRateElement = document.getElementById('completionRate');
-              completionRateElement.textContent = `${rate}%`;
-
-              // تحديث لون نسبة الإنجاز حسب النسبة
-              if (rate <= 25) {
-                  completionRateElement.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-              } else if (rate <= 49) {
-                  completionRateElement.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
-              } else if (rate <= 74) {
-                  completionRateElement.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
-              } else {
-                  completionRateElement.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-              }
-              
-              completionRateElement.style.webkitBackgroundClip = 'text';
-              completionRateElement.style.webkitTextFillColor = 'transparent';
-              completionRateElement.style.backgroundClip = 'text';
-          }
-
-          function exportToExcel() {
-              const wb = XLSX.utils.book_new();
-              let allData = [];
-
-              Object.keys(taskHistory).sort().forEach(date => {
-                  const dayData = taskHistory[date];
-                  dayData.tasks.forEach(task => {
-                      allData.push({
-                          'اليوم': task.dayName || dayData.dayName,
-                          'التاريخ الهجري': dayData.hijriDate,
-                          'التاريخ الميلادي': date,
-                          'المهمة': task.text,
-                          'الحالة': task.completed ? '✅ مكتمل' : '⏳ قيد التنفيذ',
-                          'النوع': task.isDefault ? '📚 أساسية' : '➕ مخصصة',
-                          'وقت التحديث': task.completionTime || '-'
-                      });
-                  });
-              });
-
-              const ws = XLSX.utils.json_to_sheet(allData);
-              
-              const colWidths = [
-                  { wch: 12 },  // اليوم
-                  { wch: 15 },  // التاريخ الهجري
-                  { wch: 15 },  // التاريخ الميلادي
-                  { wch: 55 },  // المهمة
-                  { wch: 15 },  // الحالة
-                  { wch: 12 },  // النوع
-                  { wch: 15 }   // وقت التحديث
-              ];
-              ws['!cols'] = colWidths;
-
-              XLSX.utils.book_append_sheet(wb, ws, "RMP Study Progress");
-              const now = new Date();
-              const filename = `RMP_Study_Plan_${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}.xlsx`;
-              XLSX.writeFile(wb, filename);
-              showNotification('📊 تم تصدير التقرير بنجاح إلى Excel!');
-          }
-
-          document.addEventListener('DOMContentLoaded', () => {
-              updateDate();
-              loadTasks();
-          });
-      </script>
-  </body>
-  </html>
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خطة مذاكرة دورة إدارة المخاطر الاحترافية RMP</title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #8b5cf6;
+            --dark-blue: #0f172a;
+            --light-blue: #e0f2fe;
+            --background-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+            --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: var(--background-gradient);
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            border-radius: 25px;
+            color: white;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.03) 2px,
+                    rgba(255, 255, 255, 0.03) 4px
+                );
+            animation: shimmer 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(45deg, #ffffff, #e0f2fe, #ffffff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-text 3s ease-in-out infinite;
+        }
+
+        @keyframes gradient-text {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .rmp-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--warning-color), #fbbf24);
+            color: var(--dark-blue);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .date-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            width: fit-content;
+            margin: 2rem auto 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .day-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .date-value {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            padding: 2.5rem;
+            border-radius: 25px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            border-radius: 25px 25px 0 0;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 1.2rem 1.8rem;
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 15px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            font-weight: 500;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        input[type="text"]::placeholder {
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary-color), var(--accent-color));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .task-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(8px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-checkbox {
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border: 3px solid var(--secondary-color);
+            border-radius: 8px;
+            margin-left: 1rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .task-checkbox:checked {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            border-color: var(--success-color);
+            transform: scale(1.1);
+        }
+
+        .task-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 1.1rem;
+            color: var(--dark-blue);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #64748b;
+            opacity: 0.7;
+        }
+
+        .stats-wrapper {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-top: 2rem;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .stats-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--success-color), var(--accent-color), var(--info-color));
+            border-radius: 25px 25px 0 0;
+        }
+
+        .stats-title {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-number.completed {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-number.incomplete {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .completion-rate {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-label {
+            color: var(--dark-blue);
+            font-size: 1.1rem;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            margin-top: 2rem;
+            width: 100%;
+            font-size: 1.2rem;
+            padding: 1.5rem;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, var(--warning-color), #f59e0b);
+            margin-top: 1rem;
+            width: 100%;
+            font-size: 1.2rem;
+            padding: 1.5rem;
+        }
+
+        .custom-toast {
+            font-family: 'Cairo', sans-serif !important;
+            direction: rtl !important;
+            font-weight: 600 !important;
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            border-radius: 15px !important;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .input-container {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .completion-rate {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header class="header">
+            <h1>خطة مذاكرة دورة إدارة المخاطر الاحترافية</h1>
+            <div class="rmp-badge">RMP Certification</div>
+            <div class="date-display">
+                <span class="day-name" id="dayName"></span>
+                <span class="date-value" id="gregorianDate"></span>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="input-container">
+                <input type="text" id="newTask" placeholder="أضف مهمة جديدة للخطة...">
+                <button onclick="addTask()">إضافة مهمة</button>
+            </div>
+            <ul class="task-list" id="taskList"></ul>
+            <button class="save-btn" onclick="saveChanges()" id="saveButton">💾 حفظ التقدم</button>
+        </div>
+
+        <div class="stats-wrapper">
+            <h2 class="stats-title">📊 تقرير التقدم اليومي</h2>
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div class="stat-label">📋 إجمالي المهام</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number completed" id="completedTasks">0</div>
+                    <div class="stat-label">✅ المهام المكتملة</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number incomplete" id="incompleteTasks">0</div>
+                    <div class="stat-label">⏳ المهام المتبقية</div>
+                </div>
+                <div class="stat-item">
+                    <div class="completion-rate" id="completionRate">0%</div>
+                    <div class="stat-label">🎯 نسبة الإنجاز</div>
+                </div>
+            </div>
+        </div>
