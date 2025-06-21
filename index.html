@@ -637,7 +637,6 @@
         }
 
         function loadTasks() {
-            const lastDate = localStorage.getItem('lastDate');
             const savedHistory = localStorage.getItem('taskHistory');
             if (savedHistory) {
                 taskHistory = JSON.parse(savedHistory);
@@ -649,17 +648,229 @@
                 savedTasks = JSON.parse(storedTasks);
             }
 
-            let currentTasks = [];
+            let newTasks = [];
             const savedDefaultTasksMap = new Map();
-            const savedCustomTasks = [];
-
-            // فصل المهام المحفوظة إلى افتراضية ومخصصة لتسهيل المعالجة
+            
+            // قم بإنشاء خريطة للمهام الافتراضية المحفوظة للبحث السريع
             savedTasks.forEach(task => {
                 if (task.isDefault) {
                     savedDefaultTasksMap.set(task.text, task);
-                } else {
-                    savedCustomTasks.push(task);
                 }
             });
 
-            // معالجة المهام الافتراضية: إما تحميل الحالة المحفوظ
+            // أضف المهام الافتراضية، مع الحفاظ على حالتها المحفوظة
+            defaultTasks.forEach(defaultText => {
+                const existingTask = savedDefaultTasksMap.get(defaultText);
+                if (existingTask) {
+                    newTasks.push(existingTask);
+                } else {
+                    // إذا كانت مهمة افتراضية جديدة أو لم يتم حفظها من قبل
+                    newTasks.push({
+                        text: defaultText,
+                        completed: false,
+                        isDefault: true,
+                        completionDate: null,
+                        completionTime: null,
+                        dayName: new Date().toLocaleDateString('ar-SA', { weekday: 'long' })
+                    });
+                }
+            });
+
+            // أضف المهام المخصصة التي لم تكن افتراضية
+            savedTasks.forEach(task => {
+                if (!task.isDefault) {
+                    newTasks.push(task);
+                }
+            });
+
+            tasks = newTasks;
+            renderTasks();
+            saveTasks(); // حفظ المهام بعد التحميل لضمان التزامن
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            updateStats();
+        }
+
+        function addTask() {
+            const input = document.getElementById('newTask');
+            const text = input.value.trim();
+            if (text) {
+                tasks.push({
+                    text,
+                    completed: false,
+                    isDefault: false, // المهام المضافة يدوياً ليست افتراضية
+                    completionDate: null,
+                    completionTime: null,
+                    dayName: new Date().toLocaleDateString('ar-SA', { weekday: 'long' })
+                });
+                input.value = '';
+                renderTasks();
+                saveTasks();
+                showNotification('✅ تمت إضافة المهمة بنجاح!');
+            } else {
+                showNotification('الرجاء إدخال نص للمهمة.', 'error');
+            }
+        }
+
+        function toggleTask(index) {
+            const task = tasks[index];
+            const isCurrentlyCompleted = task.completed;
+
+            if (isCurrentlyCompleted) {
+                // إذا كانت المهمة مكتملة وتريد إلغاء إكمالها
+                const confirmUncomplete = confirm(`هل أنت متأكد أنك تريد إلغاء إكمال المهمة: "${task.text}"؟`);
+                if (confirmUncomplete) {
+                    task.completed = false;
+                    task.completionDate = null;
+                    task.completionTime = null;
+                    task.hijriDate = null;
+                    showNotification('تم إلغاء إكمال المهمة.', 'error');
+                } else {
+                    // إذا ألغى المستخدم، لا تفعل شيئًا
+                    return;
+                }
+            } else {
+                // إذا كانت المهمة غير مكتملة وتريد إكمالها
+                const confirmComplete = confirm(`هل أنت متأكد أنك تريد وضع علامة على المهمة: "${task.text}" كمكتملة؟`);
+                if (confirmComplete) {
+                    task.completed = true;
+                    const now = new Date();
+                    task.completionDate = now.toLocaleDateString('ar-SA', { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'gregory' });
+                    task.completionTime = now.toLocaleTimeString('ar-SA');
+                    task.hijriDate = now.toLocaleDateString('ar-SA', { year: 'numeric', month: 'numeric', day: 'numeric', calendar: 'islamic-umalqura' });
+                    showNotification('✅ تم إكمال المهمة بنجاح!');
+                } else {
+                    // إذا ألغى المستخدم، لا تفعل شيئًا
+                    return;
+                }
+            }
+            renderTasks();
+            saveTasks();
+        }
+
+        function saveChanges() {
+            const now = new Date();
+            const currentDate = now.toLocaleDateString('ar-SA', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                calendar: 'gregory'
+            });
+            
+            const hijriDate = now.toLocaleDateString('ar-SA', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                calendar: 'islamic-umalqura'
+            });
+
+            const dayName = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+
+            // حفظ لقطة من المهام الحالية في سجل التاريخ
+            taskHistory[currentDate] = {
+                tasks: JSON.parse(JSON.stringify(tasks)), // نسخ عميق للمهام
+                hijriDate: hijriDate,
+                dayName: dayName
+            };
+
+            localStorage.setItem('taskHistory', JSON.stringify(taskHistory));
+            localStorage.setItem('tasks', JSON.stringify(tasks)); // تأكد من حفظ الحالة الحالية للمهام
+            
+            updateStats();
+            showNotification('💾 تم حفظ التقدم بنجاح!');
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" 
+                        ${task.completed ? 'checked' : ''} 
+                        onchange="toggleTask(${index})">
+                    <span class="task-text">${task.text}</span>
+                `;
+                list.appendChild(li);
+            });
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const incomplete = total - completed;
+            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('incompleteTasks').textContent = incomplete;
+            
+            const completionRateElement = document.getElementById('completionRate');
+            completionRateElement.textContent = `${rate}%`;
+
+            // تحديث لون نسبة الإنجاز حسب النسبة
+            if (rate <= 25) {
+                completionRateElement.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            } else if (rate <= 49) {
+                completionRateElement.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                       } else if (rate <= 74) {
+                completionRateElement.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+            } else {
+                completionRateElement.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            }
+            
+            completionRateElement.style.webkitBackgroundClip = 'text';
+            completionRateElement.style.webkitTextFillColor = 'transparent';
+            completionRateElement.style.backgroundClip = 'text';
+        }
+
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            let allData = [];
+
+            Object.keys(taskHistory).sort().forEach(date => {
+                const dayData = taskHistory[date];
+                dayData.tasks.forEach(task => {
+                    allData.push({
+                        'اليوم': task.dayName || dayData.dayName,
+                        'التاريخ الهجري': dayData.hijriDate,
+                        'التاريخ الميلادي': date,
+                        'المهمة': task.text,
+                        'الحالة': task.completed ? '✅ مكتمل' : '⏳ قيد التنفيذ',
+                        'النوع': task.isDefault ? '📚 أساسية' : '➕ مخصصة',
+                        'وقت التحديث': task.completionTime || '-'
+                    });
+                });
+            });
+
+            const ws = XLSX.utils.json_to_sheet(allData);
+            
+            const colWidths = [
+                { wch: 12 },  // اليوم
+                { wch: 15 },  // التاريخ الهجري
+                { wch: 15 },  // التاريخ الميلادي
+                { wch: 55 },  // المهمة
+                { wch: 15 },  // الحالة
+                { wch: 12 },  // النوع
+                { wch: 15 }   // وقت التحديث
+            ];
+            ws['!cols'] = colWidths;
+
+            XLSX.utils.book_append_sheet(wb, ws, "RMP Study Progress");
+            const now = new Date();
+            const filename = `RMP_Study_Plan_${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}.xlsx`;
+            XLSX.writeFile(wb, filename);
+            showNotification('📊 تم تصدير التقرير بنجاح إلى Excel!');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDate();
+            loadTasks();
+        });
+    </script>
+</body>
+</html>
