@@ -469,6 +469,12 @@
             box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important;
         }
 
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            border-radius: 15px !important;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3) !important;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -555,3 +561,101 @@
                 </div>
             </div>
         </div>
+
+        <button class="export-btn" onclick="exportToExcel()">📊 تصدير تقرير Excel</button>
+    </div>
+
+    <script>
+        const defaultTasks = [
+            "Watch Course Agenda & Exam requirements & Study Plan Videos",
+            "Watch Videos for Ch 01+ 2+ 3",
+            "Practice test",
+            "Watch Videos for Domain 01",
+            "Practice test",
+            "Watch Videos for Domain 02",
+            "Practice test",
+            "Watch Videos for Domain 03",
+            "Practice test",
+            "Watch Videos for Domain 04",
+            "Practice test",
+            "Watch Videos for Domain 05",
+            "Practice test",
+            "Watch Videos for Tips & tricks",
+            "Practice test 01",
+            "Practice test 02",
+            "Practice test 03",
+            "Practice test 04",
+            "Practice test 05",
+            "Practice test 06",
+            "Kill Mistakes Exam"
+        ];
+
+        let tasks = [];
+        let taskHistory = {};
+        const today = new Date().toISOString().split('T')[0];
+
+        function showNotification(message, type = 'success') {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "center",
+                className: `custom-toast toast-${type}`,
+                style: {
+                    background: type === 'success' 
+                        ? "linear-gradient(135deg, #10b981, #059669)"
+                        : "linear-gradient(135deg, #ef4444, #dc2626)",
+                    fontSize: "16px",
+                    padding: "18px 30px",
+                    borderRadius: "15px",
+                    boxShadow: type === 'success'
+                        ? "0 8px 25px rgba(16, 185, 129, 0.3)"
+                        : "0 8px 25px rgba(239, 68, 68, 0.3)",
+                },
+                onClick: function(){}
+            }).showToast();
+        }
+
+        function updateDate() {
+            const now = new Date();
+            const dayName = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+            const hijriDate = now.toLocaleDateString('ar-SA', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                calendar: 'islamic-umalqura'
+            });
+            const gregorianDate = now.toLocaleDateString('ar-SA', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                calendar: 'gregory'
+            });
+            
+            document.getElementById('dayName').textContent = dayName;
+            document.getElementById('gregorianDate').textContent = `${hijriDate} | ${gregorianDate}`;
+        }
+
+        function loadTasks() {
+            const lastDate = localStorage.getItem('lastDate');
+            const savedHistory = localStorage.getItem('taskHistory');
+            if (savedHistory) {
+                taskHistory = JSON.parse(savedHistory);
+            }
+            
+            let savedTasks = [];
+            const storedTasks = localStorage.getItem('tasks');
+            if (storedTasks) {
+                savedTasks = JSON.parse(storedTasks);
+            }
+
+            if (lastDate !== today) {
+                // إنه يوم جديد، قم بتحديث تاريخ آخر زيارة
+                localStorage.setItem('lastDate', today);
+
+                let newTasks = [];
+                // أضف المهام الافتراضية، مع الحفاظ على حالة إنجازها إذا كانت مكتملة من قبل
+                defaultTasks.forEach(defaultText => {
+                    const existingTask = savedTasks.find(t => t.text === defaultText && t.isDefault);
+                    if (existingTask) {
+                        newTasks.push
